@@ -9,11 +9,14 @@ public class Player : MonoBehaviour
     public float moveSpeed;
     public float maxSpeed;
     public float jumpPower;
+    public int maxStamina = 100;
+    private int currentStamina;
 
     // Start is called before the first frame update
     void Start()
     {
         rig = GetComponent<Rigidbody2D>();
+        currentStamina = maxStamina;
     }
 
     // Update is called once per frame
@@ -57,5 +60,33 @@ public class Player : MonoBehaviour
         // 캐릭터를 중심으로 아래 방향으로 ray 를 쏘아 그 곳에 Layer 타입이 Ground 인 객체가 있는지 검사합니다.
         var ray = Physics2D.Raycast(transform.position, Vector2.down, 1f, 1 << LayerMask.NameToLayer("Ground"));
         return ray.collider != null;
+    }
+
+    // Method to handle taking damage
+    public void TakeDamage(int damage)
+    {
+        currentStamina -= damage;
+        if (currentStamina <= 0)
+        {
+            // Handle character death (optional)
+            Debug.Log("Character is dead.");
+            // You can add your death logic here (e.g., respawn, game over screen, etc.)
+        }
+    }
+
+    // Method to get the current stamina
+    public int GetCurrentStamina()
+    {
+        return currentStamina;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Bullet"))
+        {
+            // Take damage from bullet
+            TakeDamage(10); // Assume each bullet hit reduces stamina by 10
+            Destroy(collision.gameObject); // Destroy the bullet on impact
+        }
     }
 }
