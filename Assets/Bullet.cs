@@ -1,24 +1,30 @@
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class BulletController : MonoBehaviour
 {
     public float speed = 10f;
-    public float gravity = 9.81f;
-    private Vector2 velocity;
+    public float damage = 20f;
 
-    void Start()
+    private Vector3 direction;
+
+    public void SetDirection(Vector3 dir)
     {
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        velocity = rb.velocity;
+        direction = dir;
     }
 
     void Update()
     {
-        Vector2 position = transform.position;
-        position += velocity * Time.deltaTime;
+        // 총알 이동
+        transform.Translate(direction * speed * Time.deltaTime);
+    }
 
-        velocity.y -= gravity * Time.deltaTime;
-
-        transform.position = position;
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // 적 오브젝트와 충돌 시 적 사망 처리
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            collision.gameObject.GetComponent<EnemyController>().TakeDamage(damage);
+            Destroy(gameObject);
+        }
     }
 }
